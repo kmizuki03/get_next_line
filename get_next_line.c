@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: kato <kato@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/04 20:10:00 by kato              #+#    #+#             */
-/*   Updated: 2025/05/04 20:12:17 by kato             ###   ########.fr       */
+/*   Created: 2025/05/04 20:38:42 by kato              #+#    #+#             */
+/*   Updated: 2025/05/04 20:51:42 by kato             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,25 +14,30 @@
 
 static char	*read_and_store(int fd, char *stored)
 {
-	char	*buffer;
 	ssize_t	bytes_read;
+	char	*buffer;
+	char	*temp;
 
-	buffer = malloc((BUFFER_SIZE + 1) * sizeof(char));
+	if (!stored)
+		stored = ft_strdup("");
+	buffer = malloc(BUFFER_SIZE + 1);
 	if (!buffer)
 		return (NULL);
-	bytes_read = 1;
-	while (!ft_strchr(stored, '\n') && bytes_read != 0)
+	while (!ft_strchr(stored, '\n'))
 	{
 		bytes_read = read(fd, buffer, BUFFER_SIZE);
-		if (bytes_read == -1)
-		{
-			free(buffer);
-			return (NULL);
-		}
+		if (bytes_read <= 0)
+			break ;
 		buffer[bytes_read] = '\0';
-		stored = ft_strjoin(stored, buffer);
+		temp = ft_strjoin(stored, buffer);
+		free(stored);
+		stored = temp;
+		if (!stored)
+			break ;
 	}
 	free(buffer);
+	if (bytes_read == -1)
+		return (free(stored), NULL);
 	return (stored);
 }
 
@@ -41,12 +46,15 @@ static char	*extract_line(char *stored)
 	char	*line;
 	size_t	len;
 
-	if (!stored || *stored == '\0')
-		return (NULL);
 	len = 0;
+	if (!stored || stored[0] == '\0')
+		return (NULL);
 	while (stored[len] && stored[len] != '\n')
 		len++;
-	line = malloc((len + 2) * sizeof(char));
+	if (stored[len] == '\n')
+		line = malloc(len + 2);
+	else
+		line = malloc(len + 1);
 	if (!line)
 		return (NULL);
 	len = 0;
@@ -75,7 +83,7 @@ static char	*update_stored(char *stored)
 		free(stored);
 		return (NULL);
 	}
-	new_stored = malloc((ft_strlen(stored) - i + 1) * sizeof(char));
+	new_stored = malloc(ft_strlen(stored) - i);
 	if (!new_stored)
 		return (NULL);
 	i++;
@@ -89,15 +97,21 @@ static char	*update_stored(char *stored)
 
 char	*get_next_line(int fd)
 {
-	static char	*stored;
+	static char	*stored[1024];
 	char		*line;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
+	if (fd < 0 || fd >= 1024 || BUFFER_SIZE <= 0)
 		return (NULL);
-	stored = read_and_store(fd, stored);
-	if (!stored)
+	stored[fd] = read_and_store(fd, stored[fd]);
+	if (!stored[fd])
 		return (NULL);
-	line = extract_line(stored);
-	stored = update_stored(stored);
+	line = extract_line(stored[fd]);
+	if (!line)
+	{
+		free(stored[fd]);
+		stored[fd] = NULL;
+		return (NULL);
+	}
+	stored[fd] = update_stored(stored[fd]);
 	return (line);
 }

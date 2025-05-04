@@ -6,7 +6,7 @@
 /*   By: kato <kato@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/04 20:10:50 by kato              #+#    #+#             */
-/*   Updated: 2025/05/04 20:12:13 by kato             ###   ########.fr       */
+/*   Updated: 2025/05/04 20:34:48 by kato             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,11 @@
 # include <string.h>
 # include <unistd.h>
 
+/* Function prototypes */
 char	*get_next_line(int fd);
+size_t	ft_strlen(const char *s);
+char	*ft_strchr(const char *s, int c);
+char	*ft_strjoin(char const *s1, char const *s2);
+char	*ft_strdup(const char *s1); /* Add the ft_strdup prototype */
 
 #endif
