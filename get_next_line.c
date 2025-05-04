@@ -6,7 +6,7 @@
 /*   By: kato <kato@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/04 20:38:42 by kato              #+#    #+#             */
-/*   Updated: 2025/05/04 20:51:42 by kato             ###   ########.fr       */
+/*   Updated: 2025/05/04 20:54:51 by kato             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,12 @@ static char	*read_and_store(int fd, char *stored)
 	char	*buffer;
 	char	*temp;
 
-	if (!stored)
+	if (stored == NULL)
 		stored = ft_strdup("");
 	buffer = malloc(BUFFER_SIZE + 1);
-	if (!buffer)
+	if (buffer == NULL)
 		return (NULL);
-	while (!ft_strchr(stored, '\n'))
+	while (ft_strchr(stored, '\n') == NULL)
 	{
 		bytes_read = read(fd, buffer, BUFFER_SIZE);
 		if (bytes_read <= 0)
@@ -32,7 +32,7 @@ static char	*read_and_store(int fd, char *stored)
 		temp = ft_strjoin(stored, buffer);
 		free(stored);
 		stored = temp;
-		if (!stored)
+		if (stored == NULL)
 			break ;
 	}
 	free(buffer);
