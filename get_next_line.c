@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kato <kato@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: kmizuki <kmizuki@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/04 20:38:42 by kato              #+#    #+#             */
-/*   Updated: 2025/05/04 20:54:51 by kato             ###   ########.fr       */
+/*   Updated: 2025/05/07 17:34:25 by kmizuki          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,9 @@
 
 static char	*read_and_store(int fd, char *stored)
 {
-	ssize_t	bytes_read;
-	char	*buffer;
-	char	*temp;
+	static ssize_t	bytes_read = 0;
+	char			*buffer;
+	char			*temp;
 
 	if (stored == NULL)
 		stored = ft_strdup("");
