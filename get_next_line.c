@@ -6,7 +6,7 @@
 /*   By: kmizuki <kmizuki@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/04 20:38:42 by kato              #+#    #+#             */
-/*   Updated: 2025/05/07 17:34:25 by kmizuki          ###   ########.fr       */
+/*   Updated: 2025/05/08 16:18:50 by kmizuki          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,11 @@
 
 static char	*read_and_store(int fd, char *stored)
 {
-	static ssize_t	bytes_read = 0;
-	char			*buffer;
-	char			*temp;
+	ssize_t	bytes_read;
+	char	*buffer;
+	char	*temp;
 
+	bytes_read = 0;
 	if (stored == NULL)
 		stored = ft_strdup("");
 	buffer = malloc(BUFFER_SIZE + 1);
@@ -30,8 +31,7 @@ static char	*read_and_store(int fd, char *stored)
 			break ;
 		buffer[bytes_read] = '\0';
 		temp = ft_strjoin(stored, buffer);
-		free(stored);
-		stored = temp;
+		stored = (free(stored), temp);
 		if (stored == NULL)
 			break ;
 	}
