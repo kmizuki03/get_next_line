@@ -3,115 +3,93 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kmizuki <kmizuki@student.42.fr>            +#+  +:+       +#+        */
+/*   By: kato <kato@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/04 20:38:42 by kato              #+#    #+#             */
-/*   Updated: 2025/05/08 16:18:50 by kmizuki          ###   ########.fr       */
+/*   Created: 2025/05/18 08:26:00 by kmizuki03         #+#    #+#             */
+/*   Updated: 2025/05/18 17:45:03 by kato             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-static char	*read_and_store(int fd, char *stored)
-{
-	ssize_t	bytes_read;
-	char	*buffer;
-	char	*temp;
-
-	bytes_read = 0;
-	if (stored == NULL)
-		stored = ft_strdup("");
-	buffer = malloc(BUFFER_SIZE + 1);
-	if (buffer == NULL)
-		return (NULL);
-	while (ft_strchr(stored, '\n') == NULL)
-	{
-		bytes_read = read(fd, buffer, BUFFER_SIZE);
-		if (bytes_read <= 0)
-			break ;
-		buffer[bytes_read] = '\0';
-		temp = ft_strjoin(stored, buffer);
-		stored = (free(stored), temp);
-		if (stored == NULL)
-			break ;
-	}
-	free(buffer);
-	if (bytes_read == -1)
-		return (free(stored), NULL);
-	return (stored);
-}
-
-static char	*extract_line(char *stored)
+static char	*extract_line(char **save)
 {
 	char	*line;
-	size_t	len;
+	char	*temp;
+	size_t	i;
 
-	len = 0;
-	if (!stored || stored[0] == '\0')
+	if (!(*save) || !(**save))
 		return (NULL);
-	while (stored[len] && stored[len] != '\n')
-		len++;
-	if (stored[len] == '\n')
-		line = malloc(len + 2);
+	i = 0;
+	while ((*save)[i] && (*save)[i] != '\n')
+		i++;
+	if ((*save)[i] == '\n')
+		line = ft_substr(*save, 0, i + 1);
 	else
-		line = malloc(len + 1);
+		line = ft_substr(*save, 0, i);
 	if (!line)
-		return (NULL);
-	len = 0;
-	while (stored[len] && stored[len] != '\n')
-	{
-		line[len] = stored[len];
-		len++;
-	}
-	if (stored[len] == '\n')
-		line[len++] = '\n';
-	line[len] = '\0';
+		return (free(*save), *save = NULL, NULL);
+	if ((*save)[i] == '\n')
+		i++;
+	temp = ft_strdup(*save + i);
+	if (!temp)
+		return (free(line), free(*save), *save = NULL, NULL);
+	free(*save);
+	*save = temp;
 	return (line);
 }
 
-static char	*update_stored(char *stored)
+static char	*read_buffer(int fd, char *buf, char **save)
 {
-	char	*new_stored;
-	size_t	i;
-	size_t	j;
+	ssize_t	bytes_read;
+	char	*temp;
 
-	i = 0;
-	while (stored[i] && stored[i] != '\n')
-		i++;
-	if (!stored[i])
+	bytes_read = 1;
+	while (bytes_read > 0 && (!*save || !ft_strchr(*save, '\n')))
 	{
-		free(stored);
-		return (NULL);
+		bytes_read = read(fd, buf, BUFFER_SIZE);
+		if (bytes_read < 0)
+			return (free(*save), *save = NULL, NULL);
+		buf[bytes_read] = '\0';
+		if (!*save)
+		{
+			*save = ft_strdup("");
+			if (!*save)
+				return (NULL);
+		}
+		temp = ft_strjoin(*save, buf);
+		free(*save);
+		*save = temp;
+		if (!*save)
+			return (NULL);
+		if (bytes_read == 0)
+			break ;
 	}
-	new_stored = malloc(ft_strlen(stored) - i);
-	if (!new_stored)
-		return (NULL);
-	i++;
-	j = 0;
-	while (stored[i])
-		new_stored[j++] = stored[i++];
-	new_stored[j] = '\0';
-	free(stored);
-	return (new_stored);
+	return (*save);
 }
 
 char	*get_next_line(int fd)
 {
-	static char	*stored[1024];
+	static char	*save[1024];
+	char		*buf;
 	char		*line;
 
-	if (fd < 0 || fd >= 1024 || BUFFER_SIZE <= 0)
+	if (fd < 0 || BUFFER_SIZE <= 0 || fd >= 1024)
 		return (NULL);
-	stored[fd] = read_and_store(fd, stored[fd]);
-	if (!stored[fd])
+	buf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	if (!buf)
 		return (NULL);
-	line = extract_line(stored[fd]);
-	if (!line)
+	if (!read_buffer(fd, buf, &save[fd]))
 	{
-		free(stored[fd]);
-		stored[fd] = NULL;
+		free(buf);
 		return (NULL);
 	}
-	stored[fd] = update_stored(stored[fd]);
+	free(buf);
+	line = extract_line(&save[fd]);
+	if (line && !*line)
+	{
+		free(line);
+		return (NULL);
+	}
 	return (line);
 }
