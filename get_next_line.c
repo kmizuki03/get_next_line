@@ -6,7 +6,7 @@
 /*   By: kato <kato@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/18 08:26:00 by kmizuki03         #+#    #+#             */
-/*   Updated: 2025/05/18 17:45:03 by kato             ###   ########.fr       */
+/*   Updated: 2025/05/19 17:02:26 by kato             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,10 @@ static char	*extract_line(char **save)
 	char	*temp;
 	size_t	i;
 
-	if (!(*save) || !(**save))
+	if (!(*save))
 		return (NULL);
+	if (!(**save))
+		return (free(*save), *save = NULL, NULL);
 	i = 0;
 	while ((*save)[i] && (*save)[i] != '\n')
 		i++;
@@ -44,24 +46,24 @@ static char	*read_buffer(int fd, char *buf, char **save)
 	ssize_t	bytes_read;
 	char	*temp;
 
+	if (!*save)
+	{
+		*save = ft_strdup("");
+		if (!*save)
+			return (NULL);
+	}
 	bytes_read = 1;
-	while (bytes_read > 0 && (!*save || !ft_strchr(*save, '\n')))
+	while (bytes_read > 0 && !ft_strchr(*save, '\n'))
 	{
 		bytes_read = read(fd, buf, BUFFER_SIZE);
 		if (bytes_read < 0)
 			return (free(*save), *save = NULL, NULL);
 		buf[bytes_read] = '\0';
-		if (!*save)
-		{
-			*save = ft_strdup("");
-			if (!*save)
-				return (NULL);
-		}
 		temp = ft_strjoin(*save, buf);
+		if (!temp)
+			return (free(*save), *save = NULL, NULL);
 		free(*save);
 		*save = temp;
-		if (!*save)
-			return (NULL);
 		if (bytes_read == 0)
 			break ;
 	}
@@ -86,7 +88,7 @@ char	*get_next_line(int fd)
 	}
 	free(buf);
 	line = extract_line(&save[fd]);
-	if (line && !*line)
+	if (!line || (line && !*line))
 	{
 		free(line);
 		return (NULL);
