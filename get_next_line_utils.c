@@ -6,7 +6,7 @@
 /*   By: kato <kato@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/30 12:00:00 by kato              #+#    #+#             */
-/*   Updated: 2025/06/08 16:33:54 by kato             ###   ########.fr       */
+/*   Updated: 2025/06/09 17:24:52 by kato             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,61 +39,77 @@ char	*ft_strchr(const char *s, int c)
 	return (NULL);
 }
 
-char	*ft_strjoin(char *s1, char *s2)
+char	*ft_strjoin(char const *s1, char const *s2)
 {
 	char	*str;
 	size_t	i;
 	size_t	j;
 
-	if (!s1)
+	if (s1 == NULL || s2 == NULL)
+		return (NULL);
+	str = malloc(ft_strlen(s1) + ft_strlen(s2) + 1);
+	if (str == NULL)
+		return (NULL);
+	i = 0;
+	while (s1[i] != '\0')
 	{
-		s1 = (char *)malloc(sizeof(char) * 1);
-		if (!s1)
-			return (NULL);
-		s1[0] = '\0';
-	}
-	str = (char *)malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2) + 1));
-	if (!str)
-		return (free(s1), NULL);
-	i = -1;
-	j = 0;
-	while (s1[++i] != '\0')
 		str[i] = s1[i];
+		i++;
+	}
+	j = 0;
 	while (s2[j] != '\0')
-		str[i++] = s2[j++];
-	str[i] = '\0';
-	free(s1);
+	{
+		str[i + j] = s2[j];
+		j++;
+	}
+	str[i + j] = '\0';
 	return (str);
 }
 
 char	*ft_substr(char *s, unsigned int start, size_t len)
 {
-	char	*str;
 	size_t	i;
 	size_t	s_len;
+	char	*substr;
 
-	if (!s)
+	if (s == NULL)
 		return (NULL);
 	s_len = ft_strlen(s);
 	if (start >= s_len)
-	{
-		str = (char *)malloc(sizeof(char) * 1);
-		if (!str)
-			return (NULL);
-		str[0] = '\0';
-		return (str);
-	}
+		return (ft_strdup(""));
 	if (len > s_len - start)
 		len = s_len - start;
-	str = (char *)malloc(sizeof(char) * (len + 1));
-	if (!str)
+	substr = malloc(len + 1);
+	if (substr == NULL)
 		return (NULL);
 	i = 0;
-	while (i < len && s[start + i])
+	while (i < len)
 	{
-		str[i] = s[start + i];
+		substr[i] = s[start + i];
 		i++;
 	}
-	str[i] = '\0';
-	return (str);
+	substr[i] = '\0';
+	return (substr);
+}
+
+char	*ft_strdup(const char *s1)
+{
+	char	*dup;
+	size_t	len;
+	size_t	i;
+
+	if (!s1)
+		return (NULL);
+	len = ft_strlen(s1);
+	dup = (char *)malloc(sizeof(char) * (len + 1));
+	if (!dup)
+		return (NULL);
+	i = 0;
+	while (i < len)
+	{
+		dup[i] = s1[i];
+		i++;
+	}
+	dup[i] = '\0';
+	return (dup);
 }

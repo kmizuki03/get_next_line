@@ -6,7 +6,7 @@
 /*   By: kato <kato@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/30 12:00:00 by kato              #+#    #+#             */
-/*   Updated: 2025/05/21 17:15:51 by kato             ###   ########.fr       */
+/*   Updated: 2025/06/09 17:26:47 by kato             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,29 +17,27 @@ static char	*ft_read_file(int fd, char *save)
 	char	*buffer;
 	ssize_t	read_bytes;
 
+	if (!save)
+	{
+		save = ft_strdup("");
+		if (!save)
+			return (NULL);
+	}
 	buffer = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
 	if (!buffer)
-		return (NULL);
+		return (free(save), NULL);
 	read_bytes = 1;
 	while (!ft_strchr(save, '\n') && read_bytes != 0)
 	{
 		read_bytes = read(fd, buffer, BUFFER_SIZE);
 		if (read_bytes == -1)
-		{
-			free(buffer);
-			free(save);
-			return (NULL);
-		}
+			return (free(buffer), free(save), NULL);
 		buffer[read_bytes] = '\0';
 		save = ft_strjoin(save, buffer);
 		if (!save)
-		{
-			free(buffer);
-			return (NULL);
-		}
+			return (free(buffer), NULL);
 	}
-	free(buffer);
-	return (save);
+	return (free(buffer), save);
 }
 
 static char	*ft_get_line(char *save)
@@ -79,7 +77,7 @@ static char	*ft_save_remainder(char *save)
 
 char	*get_next_line(int fd)
 {
-	static char	*save;
+	static char	*save = NULL;
 	char		*line;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
