@@ -6,11 +6,21 @@
 /*   By: kato <kato@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/30 12:00:00 by kato              #+#    #+#             */
-/*   Updated: 2025/06/09 17:26:47 by kato             ###   ########.fr       */
+/*   Updated: 2025/06/09 17:36:05 by kato             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+
+static char	*ft_process_buffer(char *save, char *buffer, ssize_t read_bytes)
+{
+	char	*temp;
+
+	buffer[read_bytes] = '\0';
+	temp = ft_strjoin(save, buffer);
+	free(save);
+	return (temp);
+}
 
 static char	*ft_read_file(int fd, char *save)
 {
@@ -32,12 +42,12 @@ static char	*ft_read_file(int fd, char *save)
 		read_bytes = read(fd, buffer, BUFFER_SIZE);
 		if (read_bytes == -1)
 			return (free(buffer), free(save), NULL);
-		buffer[read_bytes] = '\0';
-		save = ft_strjoin(save, buffer);
+		save = ft_process_buffer(save, buffer, read_bytes);
 		if (!save)
 			return (free(buffer), NULL);
 	}
-	return (free(buffer), save);
+	free(buffer);
+	return (save);
 }
 
 static char	*ft_get_line(char *save)
